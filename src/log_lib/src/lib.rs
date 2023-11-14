@@ -20,13 +20,26 @@ pub struct FileLogger {
 }
 
 impl FileLogger {
-    pub fn log(&self, log: Log) {
+    fn log(&self, log: Log) {
         if self.whitelist.contains(&log.level) {
             println!("continue")
         }
-        fn NewFunction {
+    }
 
-        }
+    pub fn warn(&self, message: String) {
+        self.log(Log {level: LogLevel::Warning, message});
+    }
+
+    pub fn error(&self, message: String) {
+        self.log(Log {level: LogLevel::Error, message});
+    }
+
+    pub fn info(&self, message: String) {
+        self.log(Log {level: LogLevel::Info, message});
+    }
+
+    pub fn debug(&self, message: String) {
+        self.log(Log {level: LogLevel::Debug, message});
     }
 }
-
+`11`
