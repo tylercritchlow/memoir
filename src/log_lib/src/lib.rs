@@ -63,7 +63,6 @@ impl FileLogger {
                         }
                     }
                     _ => {
-                        println!("{}", &*char.to_string());
                         conformed_message.push_str(&*char.to_string());
                         is_format_char = false;
                     }
