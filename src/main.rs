@@ -1,13 +1,10 @@
-use log_lib::{FileLogger, LogLevel, Log};
+use log_lib::{FileLogger, LogLevel};
 
 fn main() {
-    let F: FileLogger = FileLogger {
+    let mut f: FileLogger = FileLogger {
         filepath: "test.txt".to_string(),
-        whitelist: vec![LogLevel::Debug]
+        whitelist: vec![LogLevel::Warning],
+        format: "[%d] %l - %m".to_string(),
     };
-    let LOG_TEST: Log = Log {
-        level: LogLevel::Debug,
-        message: "test".to_string(),
-    };
-    F.log(LOG_TEST);
+    f.warn("test".to_string());
 }
