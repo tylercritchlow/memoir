@@ -40,7 +40,6 @@ impl FileLogger {
                     '%' => { is_format_char = true; }
                     'd' => {
                         if is_format_char {
-                            println!("{}", &*format!("{}", chrono::offset::Utc::now()));
                             conformed_message.push_str(&*format!("{}", chrono::offset::Utc::now()));
                         } else {
                             conformed_message.push_str("d");
@@ -49,10 +48,17 @@ impl FileLogger {
                     }
                     'l' => {
                         if is_format_char {
-                            println!("{}", &*format!("{:?}", log.level));
                             conformed_message.push_str(&*format!("{:?}", log.level));
                         } else {
                             conformed_message.push_str("l");
+                            is_format_char = false;
+                        }
+                    }
+                    'm' => {
+                        if is_format_char {
+                            conformed_message.push_str(&*log.message);
+                        } else {
+                            conformed_message.push_str("m");
                             is_format_char = false;
                         }
                     }
@@ -64,7 +70,6 @@ impl FileLogger {
                 }
             }
 
-            conformed_message.push_str(&*log.message);
             if let Err(e) = writeln!(file.expect(""), "{}", conformed_message) {
                 eprintln!("Couldn't write to file {}", e)
             }
