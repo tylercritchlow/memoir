@@ -1,9 +1,7 @@
 name: Rust Tests
 
 on:
-  push:
-    branches:
-      - main
+  push
 
 jobs:
   test:
