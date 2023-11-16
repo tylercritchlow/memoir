@@ -1,5 +1,6 @@
-use std::fs::OpenOptions;
-use std::io::prelude::*;
+use std::fs::File;
+use std::io::{self, BufRead};
+use std::path::Path;
 use chrono;
 
 #[derive(Debug, PartialEq)]
@@ -15,6 +16,57 @@ pub struct Log {
     pub level: LogLevel,
     pub message: String,
 }
+
+#[derive(Debug)]
+pub struct LogParser {
+    pub filepath: String,
+
+}
+
+impl LogParser {
+    pub fn new(filepath: &str) -> Self {
+        LogParser { filepath: filepath.to_string() }
+    }
+
+    pub fn parse_logs(&self) -> Vec<Log> {
+        let file = match File::open(&self.filepath) {
+            Ok(file) => file,
+            Err(_) => {
+                eprintln!("Error opening file {}", self.filepath);
+                return Vec::new();
+            }
+        };
+
+        io::BufReader::new(file)
+            .lines()
+            .filter_map(|line| line.ok())
+            .map(|line| {
+                // Assuming the log format is "%d [%l] %m"
+                let parts: Vec<&str> = line.splitn(3, ' ').collect();
+                if parts.len() == 3 {
+                    let level = match parts[1] {
+                        "[Info]" => LogLevel::Info,
+                        "[Debug]" => LogLevel::Debug,
+                        "[Warning]" => LogLevel::Warning,
+                        "[Error]" => LogLevel::Error,
+                        _ => LogLevel::Info,
+                    };
+
+                    Log {
+                        level,
+                        message: parts[2].to_string(),
+                    }
+                } else {
+                    Log {
+                        level: LogLevel::Info,
+                        message: line,
+                    }
+                }
+            })
+            .collect()
+    }
+}
+    
 
 #[derive(Debug)]
 pub struct FileLogger {
