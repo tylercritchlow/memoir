@@ -11,10 +11,5 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up Rust
-      uses: actions/setup-rust@v1
-      with:
-        stable: true
-
     - name: Run tests
-      run: cargo test
+      run: cargo test --verbose
