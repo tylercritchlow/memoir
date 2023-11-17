@@ -27,22 +27,31 @@ pub struct LogParser {
 impl LogParser {
     pub fn parse_logs(&self) -> Vec<Log> {
         let re = Regex::new(r"\b[A-Za-z\s]+\b").unwrap();
-        
+ 
         let file = match File::open(&self.filepath) {
             Ok(file) => file,
             Err(_) => {
                 eprintln!("Error opening file {}", self.filepath);
                 return Vec::new();
-            },
+            }
+        };
+ 
         io::BufReader::new(file)
             .lines()
             .filter_map(|line| line.ok())
-            .map(|line|{
-                let m = re.find(line).unwrap();
-                println!("{:?}", m);
+            .map(|line| {
+                let m = re.find(&line).unwrap();
+                let message = m.as_str().to_string();
+                let level = match m.as_str() {
+                    "Info" => LogLevel::Info,
+                    "Debug" => LogLevel::Debug,
+                    "Warning" => LogLevel::Warning,
+                    "Error" => LogLevel::Error,
+                    _ => LogLevel::Info, // Default to Info if no match
+                };
+                Log { level, message }
             })
-
-        };
+            .collect()
     }
 }
     
