@@ -1,7 +1,8 @@
-use std::fs::File;
-use std::io::{self, BufRead};
-use std::path::Path;
+use std::fs::{File, OpenOptions};
+use std::io::{self, BufRead, Write};
 use chrono;
+use regex::Regex;
+
 
 #[derive(Debug, PartialEq)]
 pub enum LogLevel {
@@ -24,46 +25,24 @@ pub struct LogParser {
 }
 
 impl LogParser {
-    pub fn new(filepath: &str) -> Self {
-        LogParser { filepath: filepath.to_string() }
-    }
-
     pub fn parse_logs(&self) -> Vec<Log> {
+        let re = Regex::new(r"\b[A-Za-z\s]+\b").unwrap();
+        
         let file = match File::open(&self.filepath) {
             Ok(file) => file,
             Err(_) => {
                 eprintln!("Error opening file {}", self.filepath);
                 return Vec::new();
-            }
-        };
-
+            },
         io::BufReader::new(file)
             .lines()
             .filter_map(|line| line.ok())
-            .map(|line| {
-                // Assuming the log format is "%d [%l] %m"
-                let parts: Vec<&str> = line.splitn(3, ' ').collect();
-                if parts.len() == 3 {
-                    let level = match parts[1] {
-                        "[Info]" => LogLevel::Info,
-                        "[Debug]" => LogLevel::Debug,
-                        "[Warning]" => LogLevel::Warning,
-                        "[Error]" => LogLevel::Error,
-                        _ => LogLevel::Info,
-                    };
-
-                    Log {
-                        level,
-                        message: parts[2].to_string(),
-                    }
-                } else {
-                    Log {
-                        level: LogLevel::Info,
-                        message: line,
-                    }
-                }
+            .map(|line|{
+                let m = re.find(line).unwrap();
+                println!("{:?}", m);
             })
-            .collect()
+
+        };
     }
 }
     
@@ -201,5 +180,39 @@ mod tests {
         assert!(content.contains("[Info] Test log"));
 
         fs::remove_file("test_file_format.log").expect("Unable to remove test file");
+    }
+
+    #[test]
+    fn test_log_parser() {
+        let mut logger = FileLogger {
+            filepath: String::from("test_log_parser.log"),
+            whitelist: vec![LogLevel::Info, LogLevel::Debug, LogLevel::Warning, LogLevel::Error],
+            format: String::from("%d [%l] %m"),
+        };
+    
+        logger.info("Testing Info".to_string());
+        logger.warn("Testing Warning".to_string());
+        logger.error("Testing Error".to_string());
+        logger.debug("Testing Debug".to_string());
+        
+        let logs: Vec<Log> = LogParser::new("test_log_parser.log").parse_logs();
+    
+        for (i, log) in logs.iter().enumerate() {
+            if i == 0 {
+                assert_eq!(log.message, "Testing Debug");
+                assert_eq!(log.level, LogLevel::Debug);
+            } else if i == 1 {
+                assert_eq!(log.message, "Testing Info");
+                assert_eq!(log.level, LogLevel::Info);
+            } else if i == 2 {
+                assert_eq!(log.message, "Testing Warning");
+                assert_eq!(log.level, LogLevel::Warning);
+            } else {
+                assert_eq!(log.message, "Testing Error");
+                assert_eq!(log.level, LogLevel::Error);
+            }
+        }
+    
+        fs::remove_file("test_log_parser.log").expect("Unable to remove test file");
     }
 }

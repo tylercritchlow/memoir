@@ -1,4 +1,4 @@
-use log_lib::{FileLogger, LogLevel};
+use log_lib::{FileLogger, LogParser, LogLevel};
 
 fn main() {
     let mut f: FileLogger = FileLogger {
@@ -7,4 +7,9 @@ fn main() {
         format: "[%d] %l - %m".to_string(),
     };
     f.warn("test".to_string());
+
+    let x = LogParser {
+        filepath: "test.txt".to_string();
+    };
+    x.parse_logs();
 }
