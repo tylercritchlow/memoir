@@ -2,7 +2,6 @@
 
 Memoir is a powerful and flexible logging library for Rust that makes it easy to capture, record, and analyze events in your code. With its intuitive interface and rich features, Memoir is the ideal tool for developers who want to gain deeper insights into their applications.
 
-### **DOCUMENTATION: https://brodycritchlow.github.io/memoir-fork/log_lib/struct.FileLogger.html**
 
 ## Installation
 
@@ -18,9 +17,7 @@ cargo add memoir
 ```
 
 ## Usage
-
-We provide a simple interface for memoir, to help users access a logging system as easily as possible. We provide simple functions to output each type of log level.
-
+More documentation available at [MemoirDocs](https://brodycritchlow.github.io/memoir-docs/log_lib/)
 ```rust
 use memoir::*; // Import everything needed from memoir.
 
