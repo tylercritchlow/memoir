@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":[["Pool","A thread safe pool that works in an `alloc`-only context."],["PoolGuard","A guard that is returned when a caller requests a value from the pool."]]};

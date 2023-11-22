@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":[["Finder","A “packed pair” finder that uses 128-bit vector operations."]]};

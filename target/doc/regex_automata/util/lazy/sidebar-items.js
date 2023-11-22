@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":[["Lazy","A lazily initialized value that implements `Deref` for `T`."]]};

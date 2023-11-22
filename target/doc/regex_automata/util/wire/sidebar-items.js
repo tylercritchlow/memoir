@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":[["AlignAs","A hack to align a smaller type `B` with a bigger type `T`."],["DeserializeError","An error that occurs when deserializing an object defined in this crate."],["SerializeError","An error that occurs when serializing an object from this crate."]]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":[["Finder","A forward substring searcher using the Rabin-Karp algorithm."],["FinderRev","A reverse substring searcher using the Rabin-Karp algorithm."]]};

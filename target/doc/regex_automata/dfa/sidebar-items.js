@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":[["onepass","A DFA that can return spans for matching capturing groups."]]};
