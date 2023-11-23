@@ -1,8 +1,7 @@
 pub mod logging_utility {
-    use std::fs::{File, OpenOptions};
-    use std::io::{self, BufRead, Write};
+    use std::fs::OpenOptions;
+    use std::io::Write;
     use chrono;
-    use regex::Regex;
 
 
     #[derive(Debug)]

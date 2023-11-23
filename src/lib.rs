@@ -1,7 +1,6 @@
-pub mod Parsing;
-pub mod LoggingUtility;
+pub mod logging_utility;
 
-use LoggingUtility::LoggingUtility::{FileLogger, Log, LogLevel};
+use logging_utility::logging_utility::{FileLogger, LogLevel};
 
 #[cfg(test)]
 mod tests {
