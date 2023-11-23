@@ -7,12 +7,13 @@ Memoir is a powerful and flexible logging library for Rust that makes it easy to
 You can use the package manager [`cargo`](https://github.com/rust-lang/cargo) to install memoir.
 
 ```bash
-cargo install memoir
+cargo install memoir-logger
 ```
 
 or add it to your current project by also using [`cargo`](https://github.com/rust-lang/cargo) to install memoir.
+
 ```bash
-cargo add memoir
+cargo add memoir-logger
 ```
 
 ## Usage
