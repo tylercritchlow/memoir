@@ -13,4 +13,3 @@ readme = "README.md"
 
 [dependencies]
 chrono = { version = "0.4.31", features = ["clock"] }
-regex = "1.10.2"
