@@ -1,3 +1,4 @@
+
 pub mod logging_utility;
 
 
@@ -6,6 +7,7 @@ pub mod logging_utility;
 mod tests {
     use super::*;
     use std::fs;
+    use logging_utility::logging_utility::{FileLogger, LogLevel};
 
     #[test]
     fn test_file_creation() {
