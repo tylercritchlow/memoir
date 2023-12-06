@@ -18,7 +18,6 @@ cargo add memoir-logger
 ```
 
 ## Usage
-More documentation available at [MemoirDocs](https://brodycritchlow.github.io/memoir-docs/log_lib/)
 ```rust
 use memoir_logger::logging_utility::{FileLogger, LogLevel}; // Import everything needed from memoir.
 
