@@ -8,28 +8,31 @@ Memoir is a powerful and flexible logging library for Rust that makes it easy to
 You can use the package manager [`cargo`](https://github.com/rust-lang/cargo) to install memoir.
 
 ```bash
-cargo install memoir
+cargo install memoir-logger
 ```
 
 or add it to your current project by also using [`cargo`](https://github.com/rust-lang/cargo) to install memoir.
+
 ```bash
-cargo add memoir
+cargo add memoir-logger
 ```
 
 ## Usage
 More documentation available at [MemoirDocs](https://brodycritchlow.github.io/memoir-docs/log_lib/)
 ```rust
-use memoir::*; // Import everything needed from memoir.
+use memoir_logger::logging_utility::{FileLogger, LogLevel}; // Import everything needed from memoir.
 
 fn main() {
     let mut f: FileLogger = FileLogger { // Initialize our FileLogger, and make sure it is mut.
         filepath: "current_log.log".to_string(),
-        whitelist: vec![LogLevel::Warning], // Filter what Logs you want to see.
+        whitelist: vec![LogLevel::Warning, LogLevel::Info], // Filter what Logs you want to see.
         format: "[%d] %l - %m".to_string(), // Format of the outputted log.
     };
     f.warn("test".to_string()); // Output a warning log onto the filepath, if in whitelist.
-    f.set_format("%d::%l - %m") // Sets a new format.
+    f.set_format("%l - %m".to_string()); // Sets a new format.
+    f.info("test".to_string()); // Output an info log in a different format.
 }
+
 ```
 
 ## Contributing
