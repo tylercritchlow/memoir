@@ -13,4 +13,4 @@ jobs:
 
     - name: Run tests
       run: cargo test --verbose
-      working-directory: ./src/log_lib/src/
+      working-directory: ./src/memoir_logger/src/
