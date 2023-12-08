@@ -1,4 +1,4 @@
-use log_lib::*;
+use memoir_logger::grouping::{FileLogger, LogLevel, Log};
 
 fn main() {
     let mut logger = FileLogger::new(

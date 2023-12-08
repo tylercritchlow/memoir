@@ -24,6 +24,14 @@ pub enum LogLevel {
 }
 
 impl FileLogger {
+    pub fn new(filepath: String, whitelist: Vec<LogLevel>, format: String) -> Self {
+        Self { 
+            filepath, 
+            whitelist, 
+            format,
+        }
+    }
+
     fn log(&mut self, log: Log) {
         if self.whitelist.contains(&log.level) {
             let file = OpenOptions::new()

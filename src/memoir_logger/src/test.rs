@@ -1,4 +1,4 @@
-use super::*;
+use super::logging_utility::*;
 use std::fs;
 
 #[test]

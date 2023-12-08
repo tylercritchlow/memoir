@@ -2,7 +2,7 @@
 mod test;
 
 #[cfg(feature = "grouping")]
-mod grouping;
+pub mod grouping;
 
 #[cfg(not(feature = "grouping"))]
-mod logging_utility;
+pub mod logging_utility;
