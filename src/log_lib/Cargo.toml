@@ -1,10 +1,13 @@
 [package]
-name = "log_lib"
-version = "0.1.0"
+name = "memoir-logger"
+version = "1.2.3"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+license = "MIT"
+description = "A simple logging library."
+documentation = "https://docs.rs/memoir-logger/latest/memoir_logger/"
+homepage = "https://github.com/tylercritchlow/memoir"
+repository = "https://github.com/tylercritchlow/memoir"
+readme = "README.md"
 
 [dependencies]
 chrono = { version = "0.4.31", features = ["clock"] }
-regex = "1.10.2"
