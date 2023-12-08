@@ -1,10 +1,9 @@
-use std::fs::{File, OpenOptions};
-use std::io::{self, BufRead, Write};
+use std::fs::{OpenOptions};
+use std::io::{Write};
 use chrono;
-use regex::Regex;
 
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum LogLevel {
     Info,
     Debug,
@@ -12,58 +11,46 @@ pub enum LogLevel {
     Error,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Log {
     pub level: LogLevel,
     pub message: String,
 }
 
 #[derive(Debug)]
-pub struct LogParser {
-    pub filepath: String,
-
+pub struct Group {
+    pub cur_log: Log,
+    pub logs: Vec<Log>,
 }
 
-impl LogParser {
-    pub fn parse_logs(&self) -> Vec<Log> {
-        let re = Regex::new(r"\b[A-Za-z\s]+\b").unwrap();
- 
-        let file = match File::open(&self.filepath) {
-            Ok(file) => file,
-            Err(_) => {
-                eprintln!("Error opening file {}", self.filepath);
-                return Vec::new();
-            }
-        };
- 
-        io::BufReader::new(file)
-            .lines()
-            .filter_map(|line| line.ok())
-            .map(|line| {
-                let m = re.find(&line).unwrap();
-                let message = m.as_str().to_string();
-                let level = match m.as_str() {
-                    "Info" => LogLevel::Info,
-                    "Debug" => LogLevel::Debug,
-                    "Warning" => LogLevel::Warning,
-                    "Error" => LogLevel::Error,
-                    _ => LogLevel::Info, // Default to Info if no match
-                };
-                Log { level, message }
-            })
-            .collect()
+impl Group {
+    pub fn new(log: Log) -> Self {
+        Group {
+            cur_log: log,
+            logs: Vec::new(),
+        }
     }
 }
-    
 
 #[derive(Debug)]
 pub struct FileLogger {
-    pub filepath: String, 
+    pub filepath: String,
     pub whitelist: Vec<LogLevel>,
     pub format: String,
+    pub group: Option<Group>,
+    pub(crate) indent: usize,
 }
 
 impl FileLogger {
+    pub fn new(filepath: String, whitelist: Vec<LogLevel>, format: String) -> Self {
+        Self { 
+            filepath, 
+            whitelist, 
+            format,
+            indent: 0,
+            group: None, 
+        }
+    }
     fn log(&mut self, log: Log) {
         if self.whitelist.contains(&log.level) {
             let file = OpenOptions::new()
@@ -77,7 +64,9 @@ impl FileLogger {
 
             for char in self.format.chars() {
                 match char {
-                    '%' => { is_format_char = true; }
+                    '%' => {
+                        is_format_char = true;
+                    }
                     'd' => {
                         if is_format_char {
                             conformed_message.push_str(&*format!("{}", chrono::offset::Utc::now()));
@@ -109,8 +98,32 @@ impl FileLogger {
                 }
             }
 
-            if let Err(e) = writeln!(file.expect(""), "{}", conformed_message) {
-                eprintln!("Couldn't write to file {}", e)
+            if let Some(ref mut group) = self.group {
+                let l = log.clone();
+                group.logs.push(Log {
+                    level: log.level,
+                    message: format!("{}|-- [{:?}] {}", "\t".repeat(self.indent), l.level, log.message),
+                });
+                self.indent = 2;
+            } else {
+                if let Err(e) = writeln!(file.expect(""), "{}", conformed_message) {
+                    eprintln!("Couldn't write to file {}", e);
+                }
+            }
+        }
+    }
+
+    pub fn start_group(&mut self, log: Log) {
+        // Start a new group with the given log
+        self.group = Some(Group::new(log.clone()));
+        self.log(log);
+    }
+
+    pub fn end_group(&mut self) {
+        // If there is a current group, print its logs and reset the group
+        if let Some(group) = self.group.take() {
+            for log in group.logs {
+                self.log(log);
             }
         }
     }
@@ -120,108 +133,33 @@ impl FileLogger {
     }
 
     pub fn warn(&mut self, message: String) {
-        self.log(Log {level: LogLevel::Warning, message});
+        self.log(Log {
+            level: LogLevel::Warning,
+            message,
+        });
     }
 
     pub fn error(&mut self, message: String) {
-        self.log(Log {level: LogLevel::Error, message});
+        self.log(Log {
+            level: LogLevel::Error,
+            message,
+        });
     }
 
     pub fn info(&mut self, message: String) {
-        self.log(Log {level: LogLevel::Info, message});
+        self.log(Log {
+            level: LogLevel::Info,
+            message,
+        });
     }
 
     pub fn debug(&mut self, message: String) {
-        self.log(Log {level: LogLevel::Debug, message});
+        self.log(Log {
+            level: LogLevel::Debug,
+            message,
+        });
     }
 }
-
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use std::fs;
-
-    #[test]
-    fn test_file_creation() {
-        let mut logger = FileLogger {
-            filepath: String::from("test_file_creation.log"),
-            whitelist: vec![LogLevel::Info, LogLevel::Debug],
-            format: String::from("%d [%l] %m"),
-        };
-
-        logger.set_format("%d [%l] %m".to_string());
-        logger.info("Test log".to_string());
-
-        assert!(fs::metadata("test_file_creation.log").is_ok());
-        fs::remove_file("test_file_creation.log").expect("Unable to remove test file");
-    }
-
-    #[test]
-    fn test_file_logging() {
-        let mut logger = FileLogger {
-            filepath: String::from("test_file_logging.log"),
-            whitelist: vec![LogLevel::Info, LogLevel::Debug],
-            format: String::from("%d [%l] %m"),
-        };
-
-        logger.info("Test log 1".to_string());
-        logger.debug("Test log 2".to_string());
-
-        let content = fs::read_to_string("test_file_logging.log").expect("Unable to read test file");
-        assert!(content.contains("Test log 1"));
-        assert!(content.contains("Test log 2"));
-
-        fs::remove_file("test_file_logging.log").expect("Unable to remove test file");
-    }
-
-    #[test]
-    fn test_file_format() {
-        let mut logger = FileLogger {
-            filepath: String::from("test_file_format.log"),
-            whitelist: vec![LogLevel::Info, LogLevel::Debug],
-            format: String::from("%d [%l] %m"),
-        };
-
-        logger.info("Test log".to_string());
-
-        let content = fs::read_to_string("test_file_format.log").expect("Unable to read test file");
-        assert!(content.contains("[Info] Test log"));
-
-        fs::remove_file("test_file_format.log").expect("Unable to remove test file");
-    }
-
-    #[test]
-    fn test_log_parser() {
-        let mut logger = FileLogger {
-            filepath: String::from("test_log_parser.log"),
-            whitelist: vec![LogLevel::Info, LogLevel::Debug, LogLevel::Warning, LogLevel::Error],
-            format: String::from("%d [%l] %m"),
-        };
-    
-        logger.info("Testing Info".to_string());
-        logger.warn("Testing Warning".to_string());
-        logger.error("Testing Error".to_string());
-        logger.debug("Testing Debug".to_string());
-        
-        let logs: Vec<Log> = LogParser::new("test_log_parser.log").parse_logs();
-    
-        for (i, log) in logs.iter().enumerate() {
-            if i == 0 {
-                assert_eq!(log.message, "Testing Debug");
-                assert_eq!(log.level, LogLevel::Debug);
-            } else if i == 1 {
-                assert_eq!(log.message, "Testing Info");
-                assert_eq!(log.level, LogLevel::Info);
-            } else if i == 2 {
-                assert_eq!(log.message, "Testing Warning");
-                assert_eq!(log.level, LogLevel::Warning);
-            } else {
-                assert_eq!(log.message, "Testing Error");
-                assert_eq!(log.level, LogLevel::Error);
-            }
-        }
-    
-        fs::remove_file("test_log_parser.log").expect("Unable to remove test file");
-    }
-}
+mod test;

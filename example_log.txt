@@ -1,0 +1,10 @@
+[2023-12-08 03:50:54.722023 UTC] [Info] Application started
+[2023-12-08 03:50:54.722864400 UTC] [Error] Critical error
+[2023-12-08 03:50:54.726174500 UTC] [Info] |-- [Info] Startup logs
+[2023-12-08 03:50:54.727842800 UTC] [Info] 		|-- [Info] Initializing components
+[2023-12-08 03:50:54.728772 UTC] [Debug] 		|-- [Debug] Debugging startup process
+[2023-12-08 03:50:54.729504500 UTC] [Error] 		|-- [Error] Error during startup
+[2023-12-08 03:50:54.732306100 UTC] [Info] 		|-- [Info] PDF Viewer logs
+[2023-12-08 03:50:54.733028600 UTC] [Info] 		|-- [Info] {extension} initialized and is in effect
+[2023-12-08 03:50:54.734262600 UTC] [Warning] A warning outside of groups
+[2023-12-08 03:50:54.735005900 UTC] [Info] Application exiting
