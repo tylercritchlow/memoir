@@ -73,6 +73,17 @@ impl FileLogger {
             let mut conformed_message = "".to_string();
             let mut is_format_char = false;
 
+            let max_date_length: usize = 34;
+            let date_stamp = format!("{}", chrono::offset::Utc::now());
+            let date_padding = max_date_length.saturating_sub(date_stamp.len());
+
+            let level_padding = match log.level {
+                LogLevel::Info => "   ",
+                LogLevel::Debug => "  ",
+                LogLevel::Warning => "",
+                LogLevel::Error => "  ",
+            };
+
             for char in self.format.chars() {
                 match char {
                     '%' => {
@@ -80,7 +91,7 @@ impl FileLogger {
                     }
                     'd' => {
                         if is_format_char {
-                            conformed_message.push_str(&*format!("{}", chrono::offset::Utc::now()));
+                            conformed_message.push_str(&*format!("{}{}", date_stamp, " ".repeat(date_padding)));
                         } else {
                             conformed_message.push_str("d");
                             is_format_char = false;
@@ -96,6 +107,7 @@ impl FileLogger {
                     }
                     'm' => {
                         if is_format_char {
+                            conformed_message.push_str(level_padding);
                             conformed_message.push_str(&*log.message);
                         } else {
                             conformed_message.push_str("m");
@@ -109,20 +121,18 @@ impl FileLogger {
                 }
             }
             
-            let mut group = &mut self.group;
+            let group = &mut self.group;
             let final_idx = group.clone().len() - 1;
 
             if group[final_idx].is_some() {
                 let l = log.clone();
-                let filling = if log.message.contains("|--") { "" } else { "|--" };
-                let enum_value_length = log.level.to_string().len();
-                let spaces = if enum_value_length > 4 { enum_value_length - 4 } else { 4 };
-                
+                let filling = if log.message.contains("|--") { "" } else { "|-- " };
+
                 group[final_idx].as_mut().unwrap().logs.push(Log {
                     level: log.level,
-                    message: format!("{}{} {}", " ".repeat(self.indent * spaces), filling, log.message),
+                    message: format!("{}{}{}{}", " ".repeat(self.indent), level_padding, filling, log.message),
                 });
-                self.indent = 1;
+                self.indent = 4;
             } else {
                 if let Err(e) = writeln!(file.expect(""), "{}", conformed_message) {
                     eprintln!("Couldn't write to file {}", e);
@@ -134,7 +144,6 @@ impl FileLogger {
     pub fn start_group(&mut self, log: Log) {
         // Start a new group with the given log
         self.group.append(&mut vec![Some(Group::new())]);
-        println!("{:?}", self.group);
         self.log(log);
     }
 
@@ -144,7 +153,6 @@ impl FileLogger {
         if group.is_some() {
             for log in group.clone().unwrap().logs {
                 self.log(log.clone());
-                println!("{:?} [{:?}]", log, group)
             }
         }
         self.indent = 0;

@@ -1,12 +1,12 @@
-[2023-12-09 10:08:10.635298300 UTC] [Info] Application started
-[2023-12-09 10:08:10.635941900 UTC] [Error] Critical error
-[2023-12-09 10:08:10.637894500 UTC] [Info] |-- Startup logs
-[2023-12-09 10:08:10.638791800 UTC] [Info]   |-- Initializing components
-[2023-12-09 10:08:10.639777100 UTC] [Debug]  |-- Debugging startup process
-[2023-12-09 10:08:10.640970100 UTC] [Error]  |-- Error during startup
-[2023-12-09 10:08:10.644886200 UTC] [Info] |-- General use logs
-[2023-12-09 10:08:10.645959600 UTC] [Info]     |-- Sub app initialized
-[2023-12-09 10:08:10.646921400 UTC] [Info]          |-- PDF Viewer logs
-[2023-12-09 10:08:10.648289400 UTC] [Info]          |-- {extension} initialized and is in effect
-[2023-12-09 10:08:10.649207600 UTC] [Warning] A warning outside of groups
-[2023-12-09 10:08:10.649715800 UTC] [Info] Application exiting
+[2023-12-09 20:05:58.066783800 UTC ] [Info]    Application started
+[2023-12-09 20:05:58.067692400 UTC ] [Error]   Critical error
+[2023-12-09 20:05:58.069706 UTC    ] [Info]       |-- Startup logs
+[2023-12-09 20:05:58.070192700 UTC ] [Info]          |-- Initializing components
+[2023-12-09 20:05:58.070775600 UTC ] [Debug]         |-- Debugging startup process
+[2023-12-09 20:05:58.071428100 UTC ] [Error]         |-- Error during startup
+[2023-12-09 20:05:58.073966800 UTC ] [Info]       |-- General use logs
+[2023-12-09 20:05:58.074443800 UTC ] [Info]          |-- Sub app initialized
+[2023-12-09 20:05:58.075413800 UTC ] [Info]             |-- PDF Viewer logs
+[2023-12-09 20:05:58.076325300 UTC ] [Info]             |-- {extension} initialized and is in effect
+[2023-12-09 20:05:58.077299200 UTC ] [Warning] A warning outside of groups
+[2023-12-09 20:05:58.078548900 UTC ] [Info]    Application exiting
