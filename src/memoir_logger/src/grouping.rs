@@ -1,5 +1,5 @@
-use std::fs::{OpenOptions};
-use std::io::{Write};
+use std::fs::OpenOptions;
+use std::io::Write;
 use chrono;
 
 
@@ -17,17 +17,16 @@ pub struct Log {
     pub message: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Group {
-    pub cur_log: Log,
+    // pub cur_group: Option<Box<Group>>,
     pub logs: Vec<Log>,
 }
 
 impl Group {
-    pub fn new(log: Log) -> Self {
+    pub fn new() -> Self {
         Group {
-            cur_log: log,
-            logs: Vec::new(),
+            logs: Vec::new()
         }
     }
 }
@@ -37,7 +36,7 @@ pub struct FileLogger {
     pub filepath: String,
     pub whitelist: Vec<LogLevel>,
     pub format: String,
-    pub group: Option<Group>,
+    pub group: Vec<Option<Group>>,
     pub(crate) indent: usize,
 }
 
@@ -48,7 +47,7 @@ impl FileLogger {
             whitelist, 
             format,
             indent: 0,
-            group: None, 
+            group: vec![None], 
         }
     }
     fn log(&mut self, log: Log) {
@@ -97,14 +96,17 @@ impl FileLogger {
                     }
                 }
             }
+            
+            let mut group = &mut self.group;
+            let final_idx = group.clone().len() - 1;
 
-            if let Some(ref mut group) = self.group {
+            if group[final_idx].is_some() {
                 let l = log.clone();
-                group.logs.push(Log {
+                group[final_idx].as_mut().unwrap().logs.push(Log {
                     level: log.level,
-                    message: format!("{}|-- [{:?}] {}", "\t".repeat(self.indent), l.level, log.message),
+                    message: format!("{}|-- [{:?}] {}\r", "    ".repeat(self.indent), l.level, log.message),
                 });
-                self.indent = 2;
+                self.indent = 1;
             } else {
                 if let Err(e) = writeln!(file.expect(""), "{}", conformed_message) {
                     eprintln!("Couldn't write to file {}", e);
@@ -115,16 +117,20 @@ impl FileLogger {
 
     pub fn start_group(&mut self, log: Log) {
         // Start a new group with the given log
-        self.group = Some(Group::new(log.clone()));
+        self.group.append(&mut vec![Some(Group::new())]);
+        println!("{:?}", self.group);
         self.log(log);
     }
 
     pub fn end_group(&mut self) {
         // If there is a current group, print its logs and reset the group
-        if let Some(group) = self.group.take() {
-            for log in group.logs {
-                self.log(log);
+        let group = self.group.pop().unwrap();
+        if group.is_some() {
+            for log in group.clone().unwrap().logs {
+                self.log(log.clone());
+                println!("{:?} [{:?}]", log, group)
             }
+
         }
     }
 
