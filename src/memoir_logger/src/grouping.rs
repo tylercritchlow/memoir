@@ -1,3 +1,4 @@
+use std::fmt;
 use std::fs::OpenOptions;
 use std::io::Write;
 use chrono;
@@ -9,6 +10,17 @@ pub enum LogLevel {
     Debug,
     Warning,
     Error,
+}
+
+impl fmt::Display for LogLevel {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            LogLevel::Debug => write!(f, "Debug"),
+            LogLevel::Info => write!(f, "Info"),
+            LogLevel::Warning => write!(f, "Warning"),
+            LogLevel::Error => write!(f, "Error")
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -102,9 +114,13 @@ impl FileLogger {
 
             if group[final_idx].is_some() {
                 let l = log.clone();
+                let filling = if log.message.contains("|--") { "" } else { "|--" };
+                let enum_value_length = log.level.to_string().len();
+                let spaces = if enum_value_length > 4 { enum_value_length - 4 } else { 4 };
+                
                 group[final_idx].as_mut().unwrap().logs.push(Log {
                     level: log.level,
-                    message: format!("{}|-- [{:?}] {}\r", "    ".repeat(self.indent), l.level, log.message),
+                    message: format!("{}{} {}", " ".repeat(self.indent * spaces), filling, log.message),
                 });
                 self.indent = 1;
             } else {
@@ -130,8 +146,8 @@ impl FileLogger {
                 self.log(log.clone());
                 println!("{:?} [{:?}]", log, group)
             }
-
         }
+        self.indent = 0;
     }
 
     pub fn set_format(&mut self, format: String) {
