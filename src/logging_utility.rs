@@ -3,9 +3,9 @@ use std::fs::OpenOptions;
 use std::io::Write;
 
 #[derive(Debug)]
-pub struct Log {
+pub struct Log<T> {
     pub level: LogLevel,
-    pub message: String,
+    pub message: T,
 }
 
 #[derive(Debug)]
@@ -23,8 +23,8 @@ pub enum LogLevel {
     Error,
 }
 
-impl FileLogger {
-    fn log(&mut self, log: Log) {
+impl<T: std::fmt::Display> FileLogger {
+    fn log(&mut self, log: Log<T>) {
         if self.whitelist.contains(&log.level) {
             let file = OpenOptions::new()
                 .write(true)
@@ -58,7 +58,7 @@ impl FileLogger {
                     }
                     'm' => {
                         if is_format_char {
-                            conformed_message.push_str(&*log.message);
+                            conformed_message.push_str(&*format!("{}", log.message));
                         } else {
                             conformed_message.push_str("m");
                             is_format_char = false;
@@ -81,31 +81,31 @@ impl FileLogger {
         self.format = format
     }
 
-    pub fn warn(&mut self, message: String) {
+    pub fn warn<T: Into<String>>(&mut self, message: T) {
         self.log(Log {
             level: LogLevel::Warning,
-            message,
+            message: message.into(),
         });
     }
 
-    pub fn error(&mut self, message: String) {
+    pub fn error<T: Into<String>>(&mut self, message: T) {
         self.log(Log {
             level: LogLevel::Error,
-            message,
+            message: message.into(),
         });
     }
 
-    pub fn info(&mut self, message: String) {
+    pub fn info<T: Into<String>>(&mut self, message: T) {
         self.log(Log {
             level: LogLevel::Info,
-            message,
+            message: message.into(),
         });
     }
 
-    pub fn debug(&mut self, message: String) {
+    pub fn debug<T: Into<String>>(&mut self, message: T) {
         self.log(Log {
             level: LogLevel::Debug,
-            message,
+            message: message.into(),
         });
     }
 }
